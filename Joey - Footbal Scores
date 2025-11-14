@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Football Scoreboard Fun</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f0f8ff;
+    }
+    .player {
+      margin: 10px 0;
+      padding: 10px;
+      border: 2px solid #333;
+      background: #fff;
+      position: relative;
+    }
+    .score {
+      font-size: 22px;
+      font-weight: bold;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+    .score.flash {
+      color: #e63946;
+      transform: scale(1.5);
+    }
+    button {
+      margin: 3px;
+    }
+    /* Confetti effect */
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: red;
+      animation: fall 1s linear forwards;
+    }
+    @keyframes fall {
+      from { transform: translateY(0); opacity: 1; }
+      to { transform: translateY(100px); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Football Scoreboard 🎉</h1>
+
+  <!-- Add Player Form -->
+  <label>
+    Player Name:
+    <input type="text" id="playerName">
+  </label>
+  <button onclick="addPlayer()">Add Player</button>
+  <br><br>
+
+  <!-- Player List -->
+  <div id="players"></div>
+
+  <script>
+    let players = {};
+
+    function addPlayer() {
+      const name = document.getElementById("playerName").value.trim();
+      if (name && !players[name]) {
+        players[name] = 0;
+        renderPlayers();
+        document.getElementById("playerName").value = "";
+      } else if (players[name]) {
+        alert("Player already exists!");
+      } else {
+        alert("Please enter a player name.");
+      }
+    }
+
+    function deletePlayer(name) {
+      delete players[name];
+      renderPlayers();
+    }
+
+    function addPoints(name, points) {
+      players[name] += points;
+      renderPlayers();
+
+      // Flash effect
+      const scoreEl = document.getElementById("score-" + name);
+      scoreEl.classList.add("flash");
+      setTimeout(() => scoreEl.classList.remove("flash"), 500);
+
+      // Confetti effect
+      launchConfetti(name);
+      // Sound effect
+      playSound();
+    }
+
+    function resetScore(name) {
+      players[name] = 0;
+      renderPlayers();
+    }
+
+    function renderPlayers() {
+      const container = document.getElementById("players");
+      container.innerHTML = "";
+
+      for (const [name, score] of Object.entries(players)) {
+        const div = document.createElement("div");
+        div.className = "player";
+        div.innerHTML = `
+          <h2>${name}</h2>
+          <div class="score" id="score-${name}">Score: ${score}</div>
+          <button onclick="addPoints('${name}', 6)">Touchdown (+6)</button>
+          <button onclick="addPoints('${name}', 3)">Field Goal (+3)</button>
+          <button onclick="addPoints('${name}', 1)">Extra Point (+1)</button>
+          <button onclick="addPoints('${name}', 2)">Safety (+2)</button>
+          <button onclick="resetScore('${name}')">Reset</button>
+          <button onclick="deletePlayer('${name}')">Delete Player</button>
+        `;
+        container.appendChild(div);
+      }
+    }
+
+    function launchConfetti(name) {
+      const playerDiv = document.querySelector(`#score-${name}`).parentElement;
+      for (let i = 0; i < 10; i++) {
+        const confetti = document.createElement("div");
+        confetti.className = "confetti";
+        confetti.style.left = Math.random() * 100 + "px";
+        confetti.style.background = ["red","blue","green","yellow","purple"][Math.floor(Math.random()*5)];
+        playerDiv.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 1000);
+      }
+    }
+
+    function playSound() {
+      const audio = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
+      audio.play();
+    }
+  </script>
+</body>
+</html>
